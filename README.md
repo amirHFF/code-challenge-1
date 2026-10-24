@@ -13,18 +13,6 @@ mvn test -Dtest='BalanceServiceTest,BalanceServiceConcurrencyTest'   # only the 
 Integration tests are skipped automatically when Docker is not available. No Maven wrapper is committed; run
 `mvn wrapper:wrapper` once if you want `./mvnw test`.
 
-Example: `POST /accounts {"accountId":"A","initialBalance":1000}`, `POST /accounts/A/credit {"amount":500,"transactionId":"TX-1"}`,
-`POST /accounts/A/transfer {"destinationAccountId":"B","amount":300,"transactionId":"TX-2"}`, `GET /accounts/A/balance`.
-
-## Architecture
-
-```
-BalanceService (interface)
- ├─ JpaBalanceService        PostgreSQL + Hibernate (authoritative) with Redis acceleration  <- used by the app
-redis/  RedisDistributedLock · IdempotencyCache 
-jpa/    AccountEntity · TransactionEntity · repositories
-api/    BalanceController (optional REST layer; 400/404/409/422/503)
-```
 
 ### Request flow (`JpaBalanceService`)
 1. **Redis idempotency cache** – hit → replay the stored result, no DB work.
